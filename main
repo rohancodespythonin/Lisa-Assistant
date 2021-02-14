@@ -1,0 +1,144 @@
+#modules required
+import pywhatkit as pwk
+import random as rd
+import time as tm
+import wolframalpha
+import pyttsx3
+import wikipedia
+import speech_recognition as sr
+import sys
+import os
+import pyjokes
+import webbrowser
+
+ntnghr = 'can you repeat that,sorry i didnt catch that,would you repeat that'.split(',')
+songs = 'hello,seven years,one call away,bohemian raphsody,i will always love you,christmass'.split(',')
+
+
+def talk(txt):
+    engine.say(txt)
+    engine.runAndWait()
+    print(txt)
+
+app_id = 'YOUR API ID'
+client = wolframalpha.Client(app_id)
+
+talk('im Lisa, your personal assistant')
+talk('what can i do for you?')
+
+
+def get_cmd():
+    try:
+        r = sr.Recognizer()
+        mic = sr.Microphone(device_index=1)
+        with mic as source:
+            r.adjust_for_ambient_noise(source)
+            r.pause_threshold = 0.8
+            r.dynamic_energy_threshold = False
+            print('listening...')
+            voice = r.listen(source)
+            cmd = r.recognize_google(voice)
+
+            if 'Lisa' in cmd or 'lisa' in cmd or 'pressure' in cmd:
+                cmd = cmd.replace('Lisa','lisa','pressure','')
+
+            return cmd
+
+    except:
+        pass
+        
+
+def run_lisa():
+    cmd = get_cmd()
+    if type(cmd) == str:
+        print(cmd)
+        if "play" in cmd:
+            cmd = cmd.replace('play', '')
+            if 'random' in cmd:
+                if 'song' in cmd:
+                    talk('playing' + cmd)
+                    pwk.playonyt(rd.choice(songs))
+            else:
+                talk('playing' + cmd)
+                pwk.playonyt(cmd)
+
+
+        if 'hi ' in cmd or 'hello' in cmd:
+            talk('Hello sir! How can i help you')
+
+
+        if 'what' in cmd:
+            cmd = cmd.replace('what', '')
+            if 'time' in cmd:
+                talk('it is currently' + tm.strftime('%I %M%p').replace('0', '', 1))
+            elif 'is a' in cmd or 'is' in cmd:
+                cmd = cmd.replace('is a', '')
+                cmd = cmd.replace('is', '')
+
+                talk(wikipedia.summary(cmd, 3))
+
+
+        if 'who is' in cmd or "who's" in cmd:
+            cmd = cmd.replace("who's", '')
+            cmd = cmd.replace('who is', '')
+            talk(wikipedia.summary(cmd, 1))
+
+        elif 'bye lisa' in cmd or 'goodbye' in cmd:
+            talk("Bye Sir. Have a good day. Take care!")
+            sys.exit()
+
+
+        elif 'calculate' in cmd:
+            cmd = cmd.replace('calculate','')
+            res = client.query(cmd)
+            talk(res)
+
+        elif 'thanks' in cmd:
+            talk("You are welcome sir!")
+
+        elif 'open video editor' in cmd:
+            os.open('"C:\Program Files\FlashIntegro\VideoEditor\VideoEditor.exe"')
+
+
+        elif 'toss a coin' in cmd or 'Toss a Coin' in cmd:
+            ht = ['heads','tail']
+            talk('tossing a coin from my wallet!')
+            ress = rd.choice(ht)
+            if ress == 'heads':
+                talk("Hey, its heads!")
+            else:
+                talk("Its tail!")
+
+        elif 'tell me a joke' in cmd:
+            a = pyjokes.get_joke()
+            talk(a)
+
+        elif 'that was funny' in cmd:
+            talk('lol haha. I knew it. that is why i gave you that joke')
+
+
+        elif 'that was not funny at all' in cmd:
+            talk('Iam sorry. You can ask another joke as well.')
+
+        elif 'what does the fox say' in cmd:
+            talk("Stop it! Get some help.")
+
+        elif 'who are you' in cmd:
+            talk("Hey you forgetful dumbass, my name is Lisa. How many times should i say it?")
+
+        elif 'how to suicide' in cmd:
+            talk("Hey my dear, dont do it. Let me take you to the suicide helpline!")
+            webbrowser.open_new_tab('https://www.google.com/search?q=suicide+helpline&oq=suicide+h&aqs=chrome.1.69i57j0i433j0l8.4084j0j15&sourceid=chrome&ie=UTF-8')
+            talk('call in the given number...')
+
+
+    else:
+        talk(rd.choice(ntnghr))
+        run_lisa()
+
+
+run_lisa()
+
+while True:
+    run_lisa()
+        
